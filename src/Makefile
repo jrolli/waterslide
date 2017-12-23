@@ -7,7 +7,7 @@ include ./common.mk
 all: $(PBDIR) rule rule2
 
 $(PBDIR):
-	@echo "Building protobuf library (takes a while)" 
+	@echo "Building protobuf library (takes a while)"
 	$(MKDIR) -p $(PBBUILD)
 	$(TAR) xvfj $(WS_BUILDROOT)/pkg/$(PBPKG) -C $(PBBUILD) $(QUIETOUT)
 	$(CD) $(PBBUILD)/* && CXXFLAGS="$(OPT_LEVEL)" ./configure --prefix=$(PBDIR) --enable-shared=no --with-pic=yes \
@@ -45,18 +45,18 @@ endif
 # Hold off on building any WS components until protobuf is done
 rule: $(PBDIR) $(RE2DIR) $(HWLOC_LINK)
 	@echo "Building core libraries"
-	$(QUIET)$(MAKE) --no-print-directory -C datatypes 
-	$(QUIET)$(MAKE) --no-print-directory -C lib 
+	$(QUIET)$(MAKE) --no-print-directory -C datatypes
+	$(QUIET)$(MAKE) --no-print-directory -C lib
 	@echo "Building utilities"
-	$(QUIET)$(MAKE) --no-print-directory -C util 
+	$(QUIET)$(MAKE) --no-print-directory -C util
 
 # Note: -<action> : ignore return status
 rule2: rule $(PBDIR) $(RE2DIR) $(HWLOC_LINK)
 	@echo "Making kids"
 ifndef NOPB
-	-$(QUIET)$(MAKE) --no-print-directory -C procs/protobuf 
+	-$(QUIET)$(MAKE) --no-print-directory -C procs/protobuf
 endif
-	$(QUIET)$(MAKE) --no-print-directory -k -C procs 
+	$(QUIET)$(MAKE) --no-print-directory -k -C procs
 	$(WSALIAS) > $(WS_PROCS_DIR)/.wsalias
 
 ifdef DESTDIR

@@ -39,8 +39,8 @@ CPP_OPEN
 #define WS_SPINLOCK_DESTROY(spin)
 #define WS_SPINLOCK_LOCK(spin)
 #define WS_SPINLOCK_UNLOCK(spin)
-#define WS_MUTEX_DECL(mutex) 
-#define WS_MUTEX_EXTERN(mutex) 
+#define WS_MUTEX_DECL(mutex)
+#define WS_MUTEX_EXTERN(mutex)
 #define WS_MUTEX_INIT(mutex,attr)
 #define WS_MUTEX_DESTROY(mutex)
 #define WS_MUTEX_LOCK(mutex)
@@ -56,10 +56,12 @@ CPP_OPEN
 #include <errno.h>
 #include "error_print.h"
 
+#if !defined(__APPLE__)
 #define WS_SPINLOCK_DECL(spin) pthread_spinlock_t spin;
 #define WS_SPINLOCK_EXTERN(spin) extern pthread_spinlock_t spin;
 #define WS_SPINLOCK_INIT(spin) pthread_spin_init(spin, PTHREAD_PROCESS_PRIVATE);
 #define WS_SPINLOCK_DESTROY(spin) pthread_spin_destroy(spin);
+#define WS_SPINLOCK_T pthread_spinlock_t
 
 #define WS_SPINLOCK_LOCK(spin)                                               \
      {                                                                       \
@@ -83,6 +85,38 @@ CPP_OPEN
                            abort();                                          \
           }                                                                  \
      }
+
+#else //!defined(__APPLE__)
+#define WS_SPINLOCK_DECL(spin) pthread_rwlock_t spin;
+#define WS_SPINLOCK_EXTERN(spin) extern pthread_rwlock_t spin;
+#define WS_SPINLOCK_INIT(spin) pthread_rwlock_init(spin, NULL);
+#define WS_SPINLOCK_DESTROY(spin) pthread_rwlock_destroy(spin);
+#define WS_SPINLOCK_T pthread_rwlock_t
+
+#define WS_SPINLOCK_LOCK(spin)                                               \
+     {                                                                       \
+          switch (pthread_rwlock_wrlock(spin)) {                                 \
+               case EINVAL: error_print("spin lock not initialized: %s:%d",  \
+                                        __FILE__, __LINE__);                 \
+                            abort();                                         \
+               case EDEADLK: error_print("double spin lock found: %s:%d",    \
+                                         __FILE__, __LINE__);                \
+                             abort();                                        \
+          }                                                                  \
+     }
+#define WS_SPINLOCK_UNLOCK(spin)                                             \
+     {                                                                       \
+          switch (pthread_rwlock_unlock(spin)) {                               \
+               case EINVAL: error_print("invalid spin unlock: %s:%d",        \
+                                        __FILE__, __LINE__);                 \
+                            abort();                                         \
+               case EPERM: error_print("bad spin unlock: %s:%d",             \
+                                       __FILE__, __LINE__);                  \
+                           abort();                                          \
+          }                                                                  \
+     }
+
+#endif //!defined(__APPLE__)
 
 #define WS_MUTEX_DECL(mutex) pthread_mutex_t mutex;
 #define WS_MUTEX_EXTERN(mutex) extern pthread_mutex_t mutex;

@@ -28,7 +28,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>
-#if !defined(__FreeBSD__)
+#if !(defined(__FreeBSD__) || defined(__APPLE__))
 #include <malloc.h>
 #endif
 #include <assert.h>
@@ -239,7 +239,7 @@ static inline int mwmr_queue_length(mwmr_queue_t * q) {
           return 0;
      }
 
-     int length; 
+     int length;
      pthread_mutex_lock(&q->mutex);
      length = q->length;
      pthread_mutex_unlock(&q->mutex);

@@ -33,7 +33,7 @@ SOFTWARE.
 //
 // This table stores static sized user data that is allocated at initialization.
 // It uses a single hash function for indexing and a 28bit digest for matching
-// in the table.  
+// in the table.
 //
 //  LRU = least recently used. In this hashtable it means the oldest record
 //        in a given index'd bucket.
@@ -41,7 +41,7 @@ SOFTWARE.
 //
 // Key Interface Functions:
 //
-// stringhash5_t * stringhash5_create(uint32_t is_shared, uint64_t max_records, 
+// stringhash5_t * stringhash5_create(uint32_t is_shared, uint64_t max_records,
 //                                    uint32_t data_alloc);
 //   Creates a hashtable, allocates memory for records up to the closest
 //   power of 2 of max_records. Allocates data_alloc memory for each record.
@@ -100,7 +100,7 @@ SOFTWARE.
 // some_data = stringhash5_find(mytable, "a key", 5);
 // if (some_data) print("value at 'a key' is %lu", some_data->value);
 //
-// stringhash5_delete(mytable); 
+// stringhash5_delete(mytable);
 // //end example code
 //
 //
@@ -161,7 +161,7 @@ CPP_OPEN
 
 //macros internal to stringhash5
 #define SET_NRANK const int nrank = GETRANK();
-#define CURRENT_LOCK_VALUE(sht,h) (sht)->curr_lock[GETRANK()] = (h) >> (sht)->mutex_index_shift; 
+#define CURRENT_LOCK_VALUE(sht,h) (sht)->curr_lock[GETRANK()] = (h) >> (sht)->mutex_index_shift;
 #define SH5_SHIFT_KEY(h1,k1) uint32_t k1 = (h1) >> (sht)->mutex_index_shift;
 #define SH5_LOCK(sht,h) SHT_LOCK(&((sht)->mutex[(h) >> (sht)->mutex_index_shift]))
 #define SH5_UNLOCK(sht,h) SHT_UNLOCK(&((sht)->mutex[(h) >> (sht)->mutex_index_shift]))
@@ -200,7 +200,7 @@ CPP_OPEN
 #ifdef WS_LOCK_DBG
 #define sh5_mutex_t pthread_mutex_t
 #else
-#define sh5_mutex_t pthread_spinlock_t
+#define sh5_mutex_t WS_SPINLOCK_T
 #endif // WS_LOCK_DBG
 
 //dummy "mutex" type for serial
@@ -217,9 +217,9 @@ typedef uint32_t (*sh5dataread_callback_t)(void *, uint32_t, FILE *);
 
 //callback functions
 typedef void (*stringhash5_callback)(void * /*data*/, void * /*calldata*/);
-typedef uint32_t (*sh5_datadump_cb)(void * /*data*/, uint32_t /*max_records*/, 
+typedef uint32_t (*sh5_datadump_cb)(void * /*data*/, uint32_t /*max_records*/,
                                     uint32_t /*data_alloc*/, FILE * /*fp*/);
-typedef uint32_t (*sh5_dataread_cb)(void * /*data*/, uint32_t /*data_alloc*/, 
+typedef uint32_t (*sh5_dataread_cb)(void * /*data*/, uint32_t /*data_alloc*/,
                                     FILE * /*fp*/);
 typedef int (*stringhash5_visit)(void * /*data*/, void * /*calldata*/);
 
@@ -236,11 +236,11 @@ typedef struct _sh5_bucket_t {
 
 typedef struct _stringhash5_sh_opts_t {
      sh_callback_t sh_callback;
-     void * proc; 
+     void * proc;
      int readonly;
      const char * open_table;
      int read_n_scour;
-     sh_callback_t sh_scour; 
+     sh_callback_t sh_scour;
      sh5dataread_callback_t sh5_dataread_cb;
 } stringhash5_sh_opts_t;
 
@@ -295,28 +295,28 @@ extern uint32_t work_size;
 //prototypes
 static inline void stringhash5_set_callback(stringhash5_t *, stringhash5_callback, void *);
 //DEPRECATED
-static inline int stringhash5_open_table(stringhash5_t **, void *, const char *, uint64_t *, 
+static inline int stringhash5_open_table(stringhash5_t **, void *, const char *, uint64_t *,
                                             int, sh_callback_t);
 //DEPRECATED
-static inline int stringhash5_open_table_with_ptrs(stringhash5_t **, void *, const char *, 
-                                            uint64_t *, int, sh_callback_t, 
+static inline int stringhash5_open_table_with_ptrs(stringhash5_t **, void *, const char *,
+                                            uint64_t *, int, sh_callback_t,
                                             sh5dataread_callback_t);
 //CURRENT
-static inline int stringhash5_open_sht_table(stringhash5_t **, void *, uint64_t, uint32_t, 
+static inline int stringhash5_open_sht_table(stringhash5_t **, void *, uint64_t, uint32_t,
                                             stringhash5_sh_opts_t *);
 static inline stringhash5_t * stringhash5_create(uint32_t, uint64_t, uint32_t);
 static inline void stringhash5_clean_data_field(stringhash5_t *);
 static inline uint32_t check_sh5_max_records(uint64_t);
 //DEPRECATED
-static inline int stringhash5_create_shared(void *, void **, const char *, uint32_t, uint32_t, 
-                                            int *, sh_callback_t, void *, int, void *, uint64_t *, 
+static inline int stringhash5_create_shared(void *, void **, const char *, uint32_t, uint32_t,
+                                            int *, sh_callback_t, void *, int, void *, uint64_t *,
                                             int, sh_callback_t);
 //DEPRECATED
-static inline int stringhash5_create_shared_with_ptrs(void *, void **, const char *, uint32_t, uint32_t, 
-                                            int *, sh_callback_t, void *, int, void *, uint64_t *, 
+static inline int stringhash5_create_shared_with_ptrs(void *, void **, const char *, uint32_t, uint32_t,
+                                            int *, sh_callback_t, void *, int, void *, uint64_t *,
                                             int, sh_callback_t, sh5dataread_callback_t);
 //CURRENT
-static inline int stringhash5_create_shared_sht(void *, void **, const char *, uint32_t, uint32_t, 
+static inline int stringhash5_create_shared_sht(void *, void **, const char *, uint32_t, uint32_t,
                                             int *, stringhash5_sh_opts_t *);
 static inline void stringhash5_unlock(stringhash5_t *);
 static inline void stringhash5_masterlock_lock(stringhash5_t *);
@@ -341,7 +341,7 @@ static inline void * stringhash5_find_attach_loc(stringhash5_t *, ws_hashloc_t *
 static inline void * stringhash5_find_attach_wsdata(stringhash5_t *, wsdata_t *);
 static inline int stringhash5_delete_loc(stringhash5_t *, ws_hashloc_t *);
 static inline int stringhash5_delete_wsdata(stringhash5_t *, wsdata_t *);
-static inline stringhash5_walker_t * stringhash5_walker_init(stringhash5_t *, stringhash5_visit, 
+static inline stringhash5_walker_t * stringhash5_walker_init(stringhash5_t *, stringhash5_visit,
                                                              void *);
 static inline int stringhash5_walker_next(stringhash5_walker_t *);
 static inline int stringhash5_walker_destroy(stringhash5_walker_t *);
@@ -369,13 +369,13 @@ static inline void stringhash5_set_callback(stringhash5_t * sht,
 //compute log2 of an unsigned int
 // by Eric Cole - http://graphics.stanford.edu/~seander/bithacks.htm
 static inline uint32_t sh5_uint32_log2(uint32_t v) {
-     static const int MultiplyDeBruijnBitPosition[32] = 
+     static const int MultiplyDeBruijnBitPosition[32] =
      {
-          0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 
+          0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
           31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
      };
 
-     v |= v >> 1; // first round down to power of 2 
+     v |= v >> 1; // first round down to power of 2
      v |= v >> 2;
      v |= v >> 4;
      v |= v >> 8;
@@ -420,7 +420,7 @@ static inline int stringhash5_create_mutex(stringhash5_t * sht) {
      }
 
      //also create a master lock for a few kids that need it (i.e. those
-     //that would have two or more of the above mutexes active 
+     //that would have two or more of the above mutexes active
      //simultaneously
      SHT_LOCK_INIT(&sht->masterlock,mutex_attr);
 
@@ -462,7 +462,7 @@ static inline uint32_t check_sh5_max_records(uint64_t max_records) {
           max_records = 4*SH5_DEPTH;
      }
 
-     // using max_records estimate and taking the floor of log2.. 
+     // using max_records estimate and taking the floor of log2..
      uint32_t bits = sh5_uint32_log2((uint32_t)max_records);
      if(max_records & (max_records - 1)) {
           // we need to add 1 to our log2 value; max_records is not a power of 2
@@ -482,9 +482,9 @@ static inline void stringhash5_sh_opts_free(stringhash5_sh_opts_t * sh5_sh_opts)
 }
 
 //DEPRECATED
-static inline int stringhash5_open_table(stringhash5_t ** table, void * proc, 
-                                         const char * open_table, uint64_t * nextval, 
-                                         int read_n_scour, sh_callback_t sh_scour) { 
+static inline int stringhash5_open_table(stringhash5_t ** table, void * proc,
+                                         const char * open_table, uint64_t * nextval,
+                                         int read_n_scour, sh_callback_t sh_scour) {
 
      stringhash5_sh_opts_t * sh5_sh_opts;
      int ret;
@@ -492,7 +492,7 @@ static inline int stringhash5_open_table(stringhash5_t ** table, void * proc,
 
      //checks against max_records and data_alloc won't be done for the deprecated functions
      uint64_t max_records = 0;
-     uint32_t data_alloc = 0; 
+     uint32_t data_alloc = 0;
 
      //calloc shared sh5 option struct
      stringhash5_sh_opts_alloc(&sh5_sh_opts);
@@ -500,7 +500,7 @@ static inline int stringhash5_open_table(stringhash5_t ** table, void * proc,
      //set shared sh5 option fields
      sh5_sh_opts->open_table = open_table;
      sh5_sh_opts->read_n_scour = read_n_scour;
-     sh5_sh_opts->sh_scour = sh_scour; 
+     sh5_sh_opts->sh_scour = sh_scour;
 
      ret = stringhash5_open_sht_table(table, proc, max_records, data_alloc, sh5_sh_opts);
 
@@ -516,9 +516,9 @@ static inline int stringhash5_open_table(stringhash5_t ** table, void * proc,
 }
 
 //DEPRECATED
-static inline int stringhash5_open_table_with_ptrs(stringhash5_t ** table, void * proc, 
+static inline int stringhash5_open_table_with_ptrs(stringhash5_t ** table, void * proc,
                                                    const char * open_table, uint64_t * nextval,
-                                                   int read_n_scour, sh_callback_t sh_scour, 
+                                                   int read_n_scour, sh_callback_t sh_scour,
                                                    sh5dataread_callback_t sh5_dataread_cb) {
 
      stringhash5_sh_opts_t * sh5_sh_opts;
@@ -527,7 +527,7 @@ static inline int stringhash5_open_table_with_ptrs(stringhash5_t ** table, void 
 
      //checks against max_records and data_alloc won't be done for the deprecated functions
      uint64_t max_records = 0;
-     uint32_t data_alloc = 0; 
+     uint32_t data_alloc = 0;
 
      //calloc shared sh5 option struct
      stringhash5_sh_opts_alloc(&sh5_sh_opts);
@@ -535,7 +535,7 @@ static inline int stringhash5_open_table_with_ptrs(stringhash5_t ** table, void 
      //set shared sh5 option fields
      sh5_sh_opts->open_table = open_table;
      sh5_sh_opts->read_n_scour = read_n_scour;
-     sh5_sh_opts->sh_scour = sh_scour; 
+     sh5_sh_opts->sh_scour = sh_scour;
      sh5_sh_opts->sh5_dataread_cb = sh5_dataread_cb;
 
      ret = stringhash5_open_sht_table(table, proc, max_records, data_alloc, sh5_sh_opts);
@@ -552,8 +552,8 @@ static inline int stringhash5_open_table_with_ptrs(stringhash5_t ** table, void 
 }
 
 //CURRENT
-static inline int stringhash5_open_sht_table(stringhash5_t ** table, void * proc, 
-                                             uint64_t max_records, uint32_t data_alloc, 
+static inline int stringhash5_open_sht_table(stringhash5_t ** table, void * proc,
+                                             uint64_t max_records, uint32_t data_alloc,
                                              stringhash5_sh_opts_t * sh5_sh_opts) {
      if (sh5_sh_opts->open_table) {
           FILE * fp;
@@ -577,19 +577,19 @@ static inline int stringhash5_open_sht_table(stringhash5_t ** table, void * proc
                }
 
                //give an error if max_records does not match the input value for this thread
-               if (max_records && ((stringhash5_t *)(*table))->max_records != 
+               if (max_records && ((stringhash5_t *)(*table))->max_records !=
                                    check_sh5_max_records(max_records)) {
                     error_print("stringhash5 table max_records %"PRIu64" not equal to converted input value %d",
-                               (uint64_t)((stringhash5_t *)(*table))->max_records, 
+                               (uint64_t)((stringhash5_t *)(*table))->max_records,
                                check_sh5_max_records(max_records));
                     return 0;
                }
 
                //give an error if data_alloc does not match the input value for this thread
-               if (data_alloc && ((stringhash5_t *)(*table))->data_alloc != 
+               if (data_alloc && ((stringhash5_t *)(*table))->data_alloc !=
                                   stringhash5_pad_alloc(data_alloc)) {
                     error_print("stringhash5 table data_alloc %"PRIu64" not equal to local stringhash5_pad_alloc(data_alloc) %d",
-                                (uint64_t)((stringhash5_t *)(*table))->data_alloc, 
+                                (uint64_t)((stringhash5_t *)(*table))->data_alloc,
                                 stringhash5_pad_alloc(data_alloc));
                     return 0;
                }
@@ -632,7 +632,7 @@ static inline stringhash5_t * stringhash5_create(uint32_t is_shared, uint64_t ma
           max_records = 4*SH5_DEPTH;
      }
 
-     // using max_records estimate and taking the floor of log2.. 
+     // using max_records estimate and taking the floor of log2..
      uint32_t bits = sh5_uint32_log2((uint32_t)max_records);
      if(max_records & (max_records - 1)) {
           // we need to add 1 to our log2 value; max_records is not a power of 2
@@ -686,7 +686,7 @@ static inline stringhash5_t * stringhash5_create(uint32_t is_shared, uint64_t ma
      sh5_init_buckets(sht);
 
      // tally up the hash table memory use
-     sht->mem_used = sht->all_index_size * sizeof(sh5_bucket_t) + 
+     sht->mem_used = sht->all_index_size * sizeof(sh5_bucket_t) +
                      sht->data_alloc * sht->max_records + sizeof(stringhash5_t);
      if (!is_shared) {
           if (!enroll_in_sht_registry(sht, "sh5", sht->mem_used, sht->hash_seed)) {
@@ -703,10 +703,10 @@ static inline void stringhash5_clean_data_field(stringhash5_t * sht) {
 
 //DEPRECATED
 // wrapper function for the deprecated stringhash5_create_shared
-static inline int stringhash5_create_shared(void * v_type_table, void ** table, 
-                     const char * sharelabel, uint32_t max_records, uint32_t data_alloc, 
-                     int * sharer_id, sh_callback_t sh_callback, void * proc, 
-                     int readonly, void * open_table, uint64_t * nextval, 
+static inline int stringhash5_create_shared(void * v_type_table, void ** table,
+                     const char * sharelabel, uint32_t max_records, uint32_t data_alloc,
+                     int * sharer_id, sh_callback_t sh_callback, void * proc,
+                     int readonly, void * open_table, uint64_t * nextval,
                      int read_n_scour, sh_callback_t sh_scour) {
 
      stringhash5_sh_opts_t * sh5_sh_opts;
@@ -718,14 +718,14 @@ static inline int stringhash5_create_shared(void * v_type_table, void ** table,
 
      //set shared sh5 option fields
      sh5_sh_opts->sh_callback = sh_callback;
-     sh5_sh_opts->proc = proc; 
+     sh5_sh_opts->proc = proc;
      sh5_sh_opts->readonly = readonly;
      sh5_sh_opts->open_table = (char *)open_table;
      sh5_sh_opts->read_n_scour = read_n_scour;
-     sh5_sh_opts->sh_scour = sh_scour; 
+     sh5_sh_opts->sh_scour = sh_scour;
 
-     ret = stringhash5_create_shared_sht(v_type_table, table, 
-                     sharelabel, max_records, data_alloc, 
+     ret = stringhash5_create_shared_sht(v_type_table, table,
+                     sharelabel, max_records, data_alloc,
                      sharer_id, sh5_sh_opts);
 
      //free shared sh5 option struct
@@ -741,11 +741,11 @@ static inline int stringhash5_create_shared(void * v_type_table, void ** table,
 
 //DEPRECATED
 // wrapper function for the deprecated stringhash5_create_shared_with_ptrs
-static inline int stringhash5_create_shared_with_ptrs(void * v_type_table, void ** table, 
-                     const char * sharelabel, uint32_t max_records, uint32_t data_alloc, 
-                     int * sharer_id, sh_callback_t sh_callback, void * proc, 
-                     int readonly, void * open_table, uint64_t * nextval, 
-                     int read_n_scour, sh_callback_t sh_scour, 
+static inline int stringhash5_create_shared_with_ptrs(void * v_type_table, void ** table,
+                     const char * sharelabel, uint32_t max_records, uint32_t data_alloc,
+                     int * sharer_id, sh_callback_t sh_callback, void * proc,
+                     int readonly, void * open_table, uint64_t * nextval,
+                     int read_n_scour, sh_callback_t sh_scour,
                      sh5dataread_callback_t sh5_dataread_cb) {
 
      stringhash5_sh_opts_t * sh5_sh_opts;
@@ -757,15 +757,15 @@ static inline int stringhash5_create_shared_with_ptrs(void * v_type_table, void 
 
      //set shared sh5 option fields
      sh5_sh_opts->sh_callback = sh_callback;
-     sh5_sh_opts->proc = proc; 
+     sh5_sh_opts->proc = proc;
      sh5_sh_opts->readonly = readonly;
      sh5_sh_opts->open_table = (char *)open_table;
      sh5_sh_opts->read_n_scour = read_n_scour;
-     sh5_sh_opts->sh_scour = sh_scour; 
+     sh5_sh_opts->sh_scour = sh_scour;
      sh5_sh_opts->sh5_dataread_cb = sh5_dataread_cb;
 
-     ret = stringhash5_create_shared_sht(v_type_table, table, 
-                     sharelabel, max_records, data_alloc, 
+     ret = stringhash5_create_shared_sht(v_type_table, table,
+                     sharelabel, max_records, data_alloc,
                      sharer_id, sh5_sh_opts);
 
      //free shared sh5 option struct
@@ -784,7 +784,7 @@ static inline int stringhash5_check_params(void ** table, uint32_t max_records, 
      //give an error if max_records does not match the input value for this thread
      if (((stringhash5_t *)(*table))->max_records != check_sh5_max_records(max_records)) {
           error_print("stringhash5 table max_records %"PRIu64" not equal to converted input value %d",
-                     (uint64_t)((stringhash5_t *)(*table))->max_records, 
+                     (uint64_t)((stringhash5_t *)(*table))->max_records,
                      check_sh5_max_records(max_records));
           return 0;
      }
@@ -792,7 +792,7 @@ static inline int stringhash5_check_params(void ** table, uint32_t max_records, 
      //give an error if data_alloc does not match the input value for this thread
      if (((stringhash5_t *)(*table))->data_alloc != stringhash5_pad_alloc(data_alloc)) {
           error_print("stringhash5 table data_alloc %"PRIu64" not equal to local stringhash5_pad_alloc(data_alloc) %d",
-                      (uint64_t)((stringhash5_t *)(*table))->data_alloc, 
+                      (uint64_t)((stringhash5_t *)(*table))->data_alloc,
                       stringhash5_pad_alloc(data_alloc));
           return 0;
      }
@@ -801,8 +801,8 @@ static inline int stringhash5_check_params(void ** table, uint32_t max_records, 
 }
 
 //CURRENT
-static inline int stringhash5_create_shared_sht(void * v_type_table, void ** table, 
-                     const char * sharelabel, uint32_t max_records, uint32_t data_alloc, 
+static inline int stringhash5_create_shared_sht(void * v_type_table, void ** table,
+                     const char * sharelabel, uint32_t max_records, uint32_t data_alloc,
                      int * sharer_id, stringhash5_sh_opts_t * sh5_sh_opts) {
      int shid;
      SET_NRANK
@@ -911,12 +911,12 @@ static inline int stringhash5_create_shared_sht(void * v_type_table, void ** tab
           if (!stringhash5_create_mutex((stringhash5_t *)*table)) {
                return 0;
           }
-          ((stringhash5_t *)(*table))->mem_used += sizeof(sh5_mutex_t *) * 
+          ((stringhash5_t *)(*table))->mem_used += sizeof(sh5_mutex_t *) *
                                                    (uint64_t)((stringhash5_t *)(*table))->max_mutex;
 
           //enroll the table
-          if (!enroll_shared_in_sht_registry(*table, "sh5 shared", sharelabel, 
-                                             ((stringhash5_t *)(*table))->mem_used, 
+          if (!enroll_shared_in_sht_registry(*table, "sh5 shared", sharelabel,
+                                             ((stringhash5_t *)(*table))->mem_used,
                                              ((stringhash5_t *)(*table))->hash_seed)) {
                error_print("unable to enroll stringhash5 table");
                return 0;
@@ -939,7 +939,7 @@ static inline int stringhash5_create_shared_sht(void * v_type_table, void ** tab
           ((stringhash5_t *)(*table))->is_shared = 1;
           shid = 0;
 
-          // If callbacks are active, use the proc structure of this thread as the 
+          // If callbacks are active, use the proc structure of this thread as the
           // default for flushing by thread 0 (if thread 0 also executes this kid,
           // it will come along later and overwrite its proc value here)
           if (nrank && sh5_sh_opts->sh_callback) {
@@ -960,7 +960,7 @@ static inline int stringhash5_create_shared_sht(void * v_type_table, void ** tab
           *sharer_id = shid;
      }
 
-     return 1; 
+     return 1;
 }
 
 static inline void stringhash5_unlock(stringhash5_t * sht) {
@@ -1061,7 +1061,7 @@ static inline void sh5_sort_lru(sh5_digest_t * d, uint8_t mru) {
      case 1:
           d[1] = d[0];
      }
-     d[0] = a; 
+     d[0] = a;
 }
 
 //called when epoch is going to be set anyways
@@ -1178,7 +1178,7 @@ static inline void * stringhash5_find(stringhash5_t * sht,
 // To lookup a next node, call stringhash5_jump_to_entry(sht, bucket, databin) and check if this entry's tag matches parent_tag.
 // If so, assume it's the same node. If not, assume it's different and remove the querying node no longer has a parent.
 //
-// jump straight to a record if the bucket and databin are known 
+// jump straight to a record if the bucket and databin are known
 static inline void * stringhash5_jump_to_entry_shared(stringhash5_t *sht, uint32_t bucket, uint32_t databin) {
      SH5_LOCK(sht,bucket)
      return sht->data + (sht->data_alloc * ((size_t)databin + ((size_t)bucket << SH5_DEPTH_BITS)));
@@ -1369,16 +1369,16 @@ static inline void * stringhash5_find_attach_shared(stringhash5_t * sht,
           }
           idigest = d2;
           ih = h2;
-     } 
+     }
      else {
           if (pairflag) {
                SH5_UNLOCK(sht,h2)
           }
      }
-     
+
      databin = (ibucket->digest[SH5_DEPTH -1])>>SH5_DATA_BIN;
 
-     uint8_t * data = sht->data + (sht->data_alloc * 
+     uint8_t * data = sht->data + (sht->data_alloc *
                                    ((size_t)databin +
                                     ((size_t)ih << SH5_DEPTH_BITS)));
 
@@ -1387,13 +1387,13 @@ static inline void * stringhash5_find_attach_shared(stringhash5_t * sht,
           if (od) {
                sht->callback(data, sht->cb_vproc[nrank]);
           }
-     }     
+     }
 
-     //reset data.. 
+     //reset data..
      memset(data, 0, sht->data_alloc);
 
      //set new digest
-     ibucket->digest[SH5_DEPTH -1] = 
+     ibucket->digest[SH5_DEPTH -1] =
           (ibucket->digest[SH5_DEPTH -1] & SH5_ANTI_DIGEST_MASK) | idigest;
 
      sh5_sort_lru_noepoch(ibucket->digest, SH5_DEPTH-1);
@@ -1435,11 +1435,11 @@ static inline void * stringhash5_find_attach_serial(stringhash5_t * sht,
      if (ibucket == bucket2) {
           idigest = d2;
           ih = h2;
-     } 
-     
+     }
+
      databin = (ibucket->digest[SH5_DEPTH -1])>>SH5_DATA_BIN;
 
-     uint8_t * data = sht->data + (sht->data_alloc * 
+     uint8_t * data = sht->data + (sht->data_alloc *
                                    ((size_t)databin +
                                     ((size_t)ih << SH5_DEPTH_BITS)));
 
@@ -1448,13 +1448,13 @@ static inline void * stringhash5_find_attach_serial(stringhash5_t * sht,
           if (od) {
                sht->callback(data, sht->cb_vproc[0]);
           }
-     }     
+     }
 
-     //reset data.. 
+     //reset data..
      memset(data, 0, sht->data_alloc);
 
      //set new digest
-     ibucket->digest[SH5_DEPTH -1] = 
+     ibucket->digest[SH5_DEPTH -1] =
           (ibucket->digest[SH5_DEPTH -1] & SH5_ANTI_DIGEST_MASK) | idigest;
 
      sh5_sort_lru_noepoch(ibucket->digest, SH5_DEPTH-1);
@@ -1510,7 +1510,7 @@ static inline int stringhash5_delete(stringhash5_t * sht, void * key, int keylen
      if (sh5_delete_bucket(&sht->buckets[h2], d2)) {
           return 1;
      }
-     
+
      return 0;
 }
 
@@ -1584,8 +1584,8 @@ static inline void stringhash5_scour(stringhash5_t * sht,
                sh5_digest_t d = bucket->digest[j];
                if (d & SH5_DIGEST_MASK) {
                     sh5_digest_t item = d >> SH5_DATA_BIN;
-                    cb(data + item * sht->data_alloc, vproc); 
-               } 
+                    cb(data + item * sht->data_alloc, vproc);
+               }
           }
      }
      SH5_ALL_UNLOCK(sht)
@@ -1610,8 +1610,8 @@ static inline void stringhash5_scour_and_flush(stringhash5_t * sht,
                sh5_digest_t d = bucket->digest[j];
                if (d & SH5_DIGEST_MASK) {
                     sh5_digest_t item = d >> SH5_DATA_BIN;
-                    cb(data + item * sht->data_alloc, vproc); 
-               } 
+                    cb(data + item * sht->data_alloc, vproc);
+               }
                //this is the stringhash5_flush (sh5_init_buckets) part
                sht->buckets[i].digest[j] = j << SH5_DATA_BIN;
           }
@@ -1638,8 +1638,8 @@ static inline int stringhash5_clean_sharing (void * sht_generic, int * index) {
           sht->max_mutex = 0;
           sht->is_shared = 0;
 
-          // TODO: it would be nice if we had gathered and saved each kid's 
-          //       proc->sharelabel address, so that we could free 
+          // TODO: it would be nice if we had gathered and saved each kid's
+          //       proc->sharelabel address, so that we could free
           //       proc->sharelabel here and reset it to NULL
 
           // move the sht from the shared to the local registry
@@ -1820,14 +1820,14 @@ static inline stringhash5_t * stringhash5_read(FILE * fp) {
      }
 
      // tally up the hash table memory use
-     sht->mem_used = sht->all_index_size * sizeof(sh5_bucket_t) + 
+     sht->mem_used = sht->all_index_size * sizeof(sh5_bucket_t) +
                      sht->data_alloc * sht->max_records + sizeof(stringhash5_t);
 
      return sht;
 }
 
 //function for reading in a table from a file
-static inline stringhash5_t * stringhash5_read_with_ptrs(FILE * fp, 
+static inline stringhash5_t * stringhash5_read_with_ptrs(FILE * fp,
                                              sh5dataread_callback_t sh5_dataread_cb) {
      char sht_id[SHT_ID_SIZE];
 
@@ -1937,7 +1937,7 @@ static inline stringhash5_t * stringhash5_read_with_ptrs(FILE * fp,
      sht->read_success = 1;
 
      // tally up the hash table memory use
-     sht->mem_used = sht->all_index_size * sizeof(sh5_bucket_t) + 
+     sht->mem_used = sht->all_index_size * sizeof(sh5_bucket_t) +
                      sht->data_alloc * sht->max_records + sizeof(stringhash5_t);
 
      return sht;
@@ -2124,8 +2124,8 @@ static inline int stringhash5_walker_next(stringhash5_walker_t * w) {
           return 0;
      }
 
-     // NOTE:  we need to lock the walker AND the affected hashtable row for inline flushers 
-     //        Otherwise, the use of stringhash5_walker_next is serialized 
+     // NOTE:  we need to lock the walker AND the affected hashtable row for inline flushers
+     //        Otherwise, the use of stringhash5_walker_next is serialized
      //        by the serialization of kid proc_flush calls.
      if (w->sht->is_shared) {
           SHT_LOCK(&(w->sht->walker_mutex))
@@ -2135,7 +2135,7 @@ static inline int stringhash5_walker_next(stringhash5_walker_t * w) {
 
      if (w->sht->walker_row[j] >= w->sht->all_index_size) {
           w->sht->walker_row[j] = 0;
-     } 
+     }
      if (w->sht->is_shared) {
           SH5_LOCK(w->sht,w->sht->walker_row[j])
      }
@@ -2149,7 +2149,7 @@ static inline int stringhash5_walker_next(stringhash5_walker_t * w) {
           if (dp[i] & SH5_DIGEST_MASK) {
                uint32_t databin = dp[i]>>SH5_DATA_BIN;
 
-               void * data = w->sht->data + 
+               void * data = w->sht->data +
                     (w->sht->data_alloc * ((size_t)databin
                                            + ((size_t)w->sht->walker_row[j] << SH5_DEPTH_BITS)));
                if (!w->callback(data, w->cb_vproc)) {

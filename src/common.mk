@@ -110,7 +110,7 @@ ifeq "$(OSNAME)" "Darwin"
   NO_WHOLE_ARCHIVE=-noall_load
 else
   WHOLE_ARCHIVE=--whole-archive
-  NO_WHOLE_ARCHIVE=--no-whole-load
+  NO_WHOLE_ARCHIVE=--no-whole-archive
   LDFLAGS += -lrt
 endif
 

@@ -12,6 +12,5 @@ compiler:
 
 install:
   - sudo apt update
-  - sudo apt upgrade -y
   - sudo apt install bison flex libmagic-dev zlib1g-dev
   - HASMAGIC=1 WS_PARALLEL=1 make -j

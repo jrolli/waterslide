@@ -16,3 +16,9 @@ before_install:
 
 install:
   - HASMAGIC=1 WS_PARALLEL=1 WS_VERBOSEBUILD=1 make
+
+script:
+  - ./wsman -h
+  - ./waterslide -h
+  - ./wsalias
+  - ./waterslide-parallel -h

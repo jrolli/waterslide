@@ -11,5 +11,5 @@ compiler:
   - clang
 
 install:
-  - sudo apt install bison flex libhiredis-dev librdkafka-dev libmagic-dev zlib1g-dev
-  - HASMAGIC=1 HASREDI=1 WS_PARALLEL=1 make -j
+  - sudo apt install bison flex libmagic-dev zlib1g-dev
+  - HASMAGIC=1 WS_PARALLEL=1 make -j

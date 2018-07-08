@@ -22,7 +22,7 @@ SOFTWARE.
 */
 
 //STRINGHASH9A - a existance check table.. like an expiring bloom filter.. only not.
-// uses buckets each with 21 items in it.. it expires 
+// uses buckets each with 21 items in it.. it expires
 #ifndef _STRINGHASH9A_H
 #define _STRINGHASH9A_H
 
@@ -136,7 +136,7 @@ CPP_OPEN
 #ifdef WS_LOCK_DBG
 #define sh9a_mutex_t pthread_mutex_t
 #else
-#define sh9a_mutex_t pthread_spinlock_t
+#define sh9a_mutex_t WS_SPINLOCK_T
 #endif // WS_LOCK_DBG
 
 //dummy "mutex" type for serial
@@ -188,15 +188,15 @@ typedef struct _stringhash9a_t {
 //DEPRECATED
 static inline int stringhash9a_open_table(stringhash9a_t **, const char *);
 //CURRENT
-static inline int stringhash9a_open_sht_table(stringhash9a_t **, uint32_t, 
+static inline int stringhash9a_open_sht_table(stringhash9a_t **, uint32_t,
                                               stringhash9a_sh_opts_t *);
 static inline stringhash9a_t * stringhash9a_create(uint32_t, uint32_t);
 //DEPRECATED
-static inline int stringhash9a_create_shared(void *, void **, const char *, 
+static inline int stringhash9a_create_shared(void *, void **, const char *,
                                              uint32_t, int *, int, void *);
 //CURRENT
-static inline int stringhash9a_create_shared_sht(void *, void **, const char *, 
-                                                 uint32_t, int *, 
+static inline int stringhash9a_create_shared_sht(void *, void **, const char *,
+                                                 uint32_t, int *,
                                                  stringhash9a_sh_opts_t *);
 static inline int stringhash9a_check(stringhash9a_t *, void *, int);
 static inline uint64_t stringhash9a_drop_cnt(stringhash9a_t *);
@@ -265,7 +265,7 @@ static inline int check_sh9a_max_records(uint32_t max_records) {
           // the minimum size of 84 will be enforced by the sh9a_create_ibits() below
      }
 
-     // 42 == 21 items per bucket, 2 tables 
+     // 42 == 21 items per bucket, 2 tables
      uint32_t ibits = sh9a_uint32_log2((uint32_t)(max_records/42)) + 1;
      int mxr = (1<<(ibits)) * 21 * 2;
 
@@ -305,7 +305,7 @@ static inline int stringhash9a_open_table(stringhash9a_t ** table, const char * 
 }
 
 //CURRENT
-static inline int stringhash9a_open_sht_table(stringhash9a_t ** table, uint32_t max_records, 
+static inline int stringhash9a_open_sht_table(stringhash9a_t ** table, uint32_t max_records,
                                               stringhash9a_sh_opts_t * sh9a_sh_opts) {
      if (sh9a_sh_opts->open_table) {
           FILE * fp;
@@ -323,16 +323,16 @@ static inline int stringhash9a_open_sht_table(stringhash9a_t ** table, uint32_t 
                }
                tool_print("finished loading table %s", sh9a_sh_opts->open_table);
 
-               if (!enroll_in_sht_registry(*table, "sh9a", ((stringhash9a_t *)(*table))->mem_used, 
+               if (!enroll_in_sht_registry(*table, "sh9a", ((stringhash9a_t *)(*table))->mem_used,
                                            ((stringhash9a_t *)(*table))->hash_seed)) {
                     return 0;
                }
 
                //give an error if max_records does not match the input value for this thread
-               if (max_records && ((stringhash9a_t *)(*table))->max_records != 
+               if (max_records && ((stringhash9a_t *)(*table))->max_records !=
                                    check_sh9a_max_records(max_records)) {
                     error_print("stringhash9a table max_records %d not equal to converted input value %d",
-                               ((stringhash9a_t *)(*table))->max_records, 
+                               ((stringhash9a_t *)(*table))->max_records,
                                check_sh9a_max_records(max_records));
                     return 0;
                }
@@ -391,7 +391,7 @@ static inline stringhash9a_t * stringhash9a_create(uint32_t is_shared, uint32_t 
      }
 
      //create the stringhash9a table from scratch
-     // 42 == 21 items per bucket, 2 tables 
+     // 42 == 21 items per bucket, 2 tables
      uint32_t ibits = sh9a_uint32_log2((uint32_t)(max_records/42)) + 1;
 
      sht = sh9a_create_ibits(ibits);
@@ -416,7 +416,7 @@ static inline int stringhash9a_check_params(void ** table, uint32_t max_records)
      //give an error if max_records does not match the input value for this thread
      if (((stringhash9a_t *)(*table))->max_records != check_sh9a_max_records(max_records)) {
           error_print("stringhash9a table max_records %d not equal to converted input value %d",
-                     ((stringhash9a_t *)(*table))->max_records, 
+                     ((stringhash9a_t *)(*table))->max_records,
                      check_sh9a_max_records(max_records));
           return 0;
      }
@@ -425,9 +425,9 @@ static inline int stringhash9a_check_params(void ** table, uint32_t max_records)
 }
 
 //DEPRECATED
-static inline int stringhash9a_create_shared(void * v_type_table, void ** table, 
-                                             const char * sharelabel, uint32_t max_records, 
-                                             int * sharer_id, int readonly, 
+static inline int stringhash9a_create_shared(void * v_type_table, void ** table,
+                                             const char * sharelabel, uint32_t max_records,
+                                             int * sharer_id, int readonly,
                                              void * open_table) {
 
      stringhash9a_sh_opts_t * sh9a_sh_opts;
@@ -441,7 +441,7 @@ static inline int stringhash9a_create_shared(void * v_type_table, void ** table,
      sh9a_sh_opts->readonly = readonly;
      sh9a_sh_opts->open_table = (char *)open_table;
 
-     ret = stringhash9a_create_shared_sht(v_type_table, table, sharelabel, max_records, 
+     ret = stringhash9a_create_shared_sht(v_type_table, table, sharelabel, max_records,
                                           sharer_id, sh9a_sh_opts);
 
      //free shared sh9a option struct
@@ -451,18 +451,18 @@ static inline int stringhash9a_create_shared(void * v_type_table, void ** table,
 }
 
 //CURRENT
-static inline int stringhash9a_create_shared_sht(void * v_type_table, void ** table, 
-                                                 const char * sharelabel, 
-                                                 uint32_t max_records, int * sharer_id, 
+static inline int stringhash9a_create_shared_sht(void * v_type_table, void ** table,
+                                                 const char * sharelabel,
+                                                 uint32_t max_records, int * sharer_id,
                                                  stringhash9a_sh_opts_t * sh9a_sh_opts) {
      int shid;
-     
+
      //sharelabel error checks:  null sharelabel
      if (!sharelabel) {
           error_print("this kid is not sharing stringhash9a, please specify share with -J option");
           error_print("also, this kid should not have entered here without -J set");
           return 0;
-     } 
+     }
 
      //see if structure is already available at label
      share9a_t * sharedata = ws_kidshare_get(v_type_table, sharelabel);
@@ -495,11 +495,11 @@ static inline int stringhash9a_create_shared_sht(void * v_type_table, void ** ta
                fp = sysutil_config_fopen((const char *)sh9a_sh_opts->open_table, "r");
                if (!fp) {
                     if (sh9a_sh_opts->readonly) {
-                         error_print("stringhash9a_create_shared unable to load table %s", 
+                         error_print("stringhash9a_create_shared unable to load table %s",
                                      (char *)sh9a_sh_opts->open_table);
                          return 0;
                     }
-                    tool_print("stringhash9a_create_shared unable to open table %s", 
+                    tool_print("stringhash9a_create_shared unable to open table %s",
                                (char *)sh9a_sh_opts->open_table);
                     tool_print("stringhash9a_create_shared ignoring load failure -- starting empty table");
                     *table = stringhash9a_create(1, max_records);
@@ -550,11 +550,11 @@ static inline int stringhash9a_create_shared_sht(void * v_type_table, void ** ta
           if (!sh9a_create_mutex(*table)) {
                return 0;
           }
-          ((stringhash9a_t *)(*table))->mem_used += sizeof(sh9a_mutex_t *) * 
+          ((stringhash9a_t *)(*table))->mem_used += sizeof(sh9a_mutex_t *) *
                                                     (uint64_t)((stringhash9a_t *)(*table))->max_mutex;
 #endif // WS_PTHREADS && !OWMR_TABLES
 
-          if (!enroll_shared_in_sht_registry(*table, "sh9a shared", sharelabel, 
+          if (!enroll_shared_in_sht_registry(*table, "sh9a shared", sharelabel,
                                              ((stringhash9a_t *)(*table))->mem_used,
                                              ((stringhash9a_t *)(*table))->hash_seed)) {
                error_print("unable to enroll stringhash9a shared table");
@@ -587,7 +587,7 @@ static inline int stringhash9a_create_shared_sht(void * v_type_table, void ** ta
           *sharer_id = shid;
      }
 
-     return 1; 
+     return 1;
 }
 
 //steal bytes from digests.. populate
@@ -665,27 +665,27 @@ static inline void sh9a_sort_lru_upper(uint32_t * d, uint8_t mru) {
 
      switch (mru) {
      case 16:
-          a = ((d[0] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[0] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[1] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[2] & SH9A_LEFTOVER_MASK)<<24);
           break;
      case 17:
-          a = ((d[3] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[3] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[4] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[5] & SH9A_LEFTOVER_MASK)<<24);
           break;
      case 18:
-          a = ((d[6] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[6] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[7] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[8] & SH9A_LEFTOVER_MASK)<<24);
           break;
      case 19:
-          a = ((d[9] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[9] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[10] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[11] & SH9A_LEFTOVER_MASK)<<24);
           break;
      case 20:
-          a = ((d[12] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[12] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[13] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[14] & SH9A_LEFTOVER_MASK)<<24);
           break;
@@ -739,7 +739,7 @@ static inline void sh9a_sort_lru_upper(uint32_t * d, uint8_t mru) {
      d[2] |= (b & 0xFF000000)>>24;
 
      d[0] &= SH9A_LEFTOVER_MASK;
-     d[0] |= a; 
+     d[0] |= a;
 }
 
 // GCC pragma diagnostics only work for gcc 4.2 and later
@@ -925,7 +925,7 @@ static inline void sh9a_shift_new(uint32_t * d, uint32_t a) {
      d[2] |= (b & 0xFF000000)>>24;
 
      d[0] &= SH9A_LEFTOVER_MASK;
-     d[0] |= a; 
+     d[0] |= a;
 }
 
 //find records using hashkeys.. return 1 if found
@@ -1021,9 +1021,9 @@ static inline int sh9a_cmp_epoch(stringhash9a_t * sht, uint32_t h1, uint32_t h2,
      e1 = sht->buckets[h1].digest[15] & SH9A_LEFTOVER_MASK;
      diff1 = sht->epoch - e1;
      e2 = sht->buckets[h2].digest[15] & SH9A_LEFTOVER_MASK;
-     diff2 = sht->epoch - e2; 
-    
-     //find oldest table 
+     diff2 = sht->epoch - e2;
+
+     //find oldest table
      if (diff1 > diff2) {
           return 1;
      }
@@ -1096,7 +1096,7 @@ static inline int stringhash9a_set_posthash_shared(stringhash9a_t * sht,
           }
      }
 
-     sh9a_update_bucket_epoch(sht, bucket); 
+     sh9a_update_bucket_epoch(sht, bucket);
      SH9A_UNLOCK_PAIR(sht, k1, k2)
 
      return 0;
@@ -1141,7 +1141,7 @@ static inline int stringhash9a_set_posthash_serial(stringhash9a_t * sht,
           }
      }
 
-     sh9a_update_bucket_epoch(sht, bucket); 
+     sh9a_update_bucket_epoch(sht, bucket);
 
      return 0;
 }
@@ -1225,27 +1225,27 @@ static inline void sh9a_sort_lru_upper_half(uint32_t * d, uint8_t mru) {
 
      switch (mru) {
      case 16:
-          a = ((d[0] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[0] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[1] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[2] & SH9A_LEFTOVER_MASK)<<24);
           break;
      case 17:
-          a = ((d[3] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[3] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[4] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[5] & SH9A_LEFTOVER_MASK)<<24);
           break;
      case 18:
-          a = ((d[6] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[6] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[7] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[8] & SH9A_LEFTOVER_MASK)<<24);
           break;
      case 19:
-          a = ((d[9] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[9] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[10] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[11] & SH9A_LEFTOVER_MASK)<<24);
           break;
      case 20:
-          a = ((d[12] & SH9A_LEFTOVER_MASK)<<8) + 
+          a = ((d[12] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[13] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[14] & SH9A_LEFTOVER_MASK)<<24);
           break;
@@ -1300,7 +1300,7 @@ static inline void sh9a_sort_lru_upper_half(uint32_t * d, uint8_t mru) {
      d[2] |= (b & 0xFF000000)>>24;
 
      d[x] &= SH9A_LEFTOVER_MASK;
-     d[x] |= a; 
+     d[x] |= a;
 }
 
 //move mru item to front..  ridiculous code bloat - but it's supposed
@@ -1312,7 +1312,7 @@ static inline void sh9a_delete_lru(uint32_t * d, uint8_t item) {
                d[i] &= SH9A_LEFTOVER_MASK;
                d[i] = d[i+1] & SH9A_DIGEST_MASK;
           }
-          d[15] = ((d[0] & SH9A_LEFTOVER_MASK)<<8) + 
+          d[15] = ((d[0] & SH9A_LEFTOVER_MASK)<<8) +
                ((d[1] & SH9A_LEFTOVER_MASK)<<16) +
                ((d[2] & SH9A_LEFTOVER_MASK)<<24);
 
@@ -1363,7 +1363,7 @@ static inline void sh9a_delete_lru(uint32_t * d, uint8_t item) {
 static inline int sh9a_delete_bucket(sh9a_bucket_t * bucket,
                                     uint32_t digest) {
      uint32_t i;
-     
+
      uint32_t * dp = bucket->digest;
      uint32_t leftover[6] = {0};
      for (i = 0 ; i < SH9A_DEPTH; i++) {
@@ -1475,8 +1475,8 @@ static inline int stringhash9a_clean_sharing (void * sht_generic, int * index) {
           sht->max_mutex = 0;
           sht->is_shared = 0;
 
-          // TODO: it would be nice if we had gathered and saved each kid's 
-          //       proc->sharelabel address, so that we could free 
+          // TODO: it would be nice if we had gathered and saved each kid's
+          //       proc->sharelabel address, so that we could free
           //       proc->sharelabel here and reset it to NULL
 
           // move the sht from the shared to the local registry
@@ -1601,7 +1601,7 @@ static inline int stringhash9a_dump(stringhash9a_t * sht, FILE * fp) {
      SH9A_UNLOCK_ALL(sht)
 
      return 1;
-} 
+}
 
 #ifdef _WATERSLIDE_H
 static inline int stringhash9a_check_loc(stringhash9a_t * sht, ws_hashloc_t * loc) {

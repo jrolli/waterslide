@@ -38,7 +38,7 @@ CPP_OPEN
 #endif // __cplusplus
 
 // Macros for noop serial functions
-#ifndef WS_PTHREADS
+#if !defined(WS_PTHREADS) || defined(__APPLE__)
 #define ALLOC_THREADID_STUFF() (1)
 #define FREE_THREADID_STUFF()
 #define REGISTER_SHQ_WRITER(src_tid,sub_tid) 1
@@ -142,8 +142,8 @@ static inline int realloc_threadid_stuff(void) {
 
      uint32_t cpulen = ++cpu_thread_mapper.array_length;
 
-     cpu_thread_mapper.cpu_for_thread = 
-          (int32_t *)realloc(cpu_thread_mapper.cpu_for_thread, 
+     cpu_thread_mapper.cpu_for_thread =
+          (int32_t *)realloc(cpu_thread_mapper.cpu_for_thread,
           cpulen*sizeof(int32_t));
 
      if (NULL == cpu_thread_mapper.cpu_for_thread) {
@@ -166,7 +166,7 @@ static inline int realloc_threadid_stuff(void) {
      cpu_thread_mapper.cpu_for_thread[cpulen-1] = -1;
      cpu_thread_mapper.utid_for_thread[cpulen-1] = -1;
 
-     num_shq_writers = 
+     num_shq_writers =
           (uint32_t *)realloc(num_shq_writers,
           cpulen*sizeof(uint32_t));
 
@@ -178,14 +178,14 @@ static inline int realloc_threadid_stuff(void) {
      // initialize the new entry
      num_shq_writers[cpulen-1] = 0;
 
-     shq_writers = (uint32_t **)realloc(shq_writers, 
+     shq_writers = (uint32_t **)realloc(shq_writers,
                    cpulen*sizeof(uint32_t *));
      if (NULL == shq_writers) {
           error_print("failed realloc_threadid_stuff realloc of shq_writers");
           return 0;
      }
 
-     shq_writers[cpulen-1] = 
+     shq_writers[cpulen-1] =
                  (uint32_t *)calloc(1, sizeof(uint32_t));
      if (0 == shq_writers[cpulen-1]) {
           error_print("failed realloc_threadid_stuff calloc of shq_writers[%d]", cpulen-1);
@@ -256,7 +256,7 @@ static inline void report_shq_writers(mimo_t * mimo) {
           int index1, index2;
           for(dst = 0; dst < work_size; dst++) {
                if (mimo->verbose) {
-                    fprintf(stderr, "Thread %d has %d writers into its external queue\n", 
+                    fprintf(stderr, "Thread %d has %d writers into its external queue\n",
                             dst, num_shq_writers[dst]);
                }
                if(num_shq_writers[dst] <= 1) {
@@ -363,9 +363,9 @@ static inline int next_available_utid(void) {
      return (max_utid_num + 1);
 }
 
-static inline void edge_trans(mimo_t * mimo, ws_proc_instance_t * src, 
-                              ws_proc_edge_t * edge, ws_proc_instance_t * dst, 
-                              int thread_trans, int thread_context, 
+static inline void edge_trans(mimo_t * mimo, ws_proc_instance_t * src,
+                              ws_proc_edge_t * edge, ws_proc_instance_t * dst,
+                              int thread_trans, int thread_context,
                               int twoD_placement) {
 
      // We need this to allocate subscribers as either local or external
@@ -415,9 +415,9 @@ static inline void edge_trans(mimo_t * mimo, ws_proc_instance_t * src,
      }
 
      // we indicate that we have visited this kid and assigned it a thread id
-     // this is important when making decisions in thread_context section of 
+     // this is important when making decisions in thread_context section of
      // ws_new_edge
-     dst->tid_assigned = 1; 
+     dst->tid_assigned = 1;
 
      if(0 == src->thread_id || 0 == dst->thread_id) {
           // user thread id of zero exists
@@ -570,7 +570,7 @@ static inline void rebase_threads_to_cpu(mimo_t * mimo) {
           offset_cpus_and_uid_assignments(mimo->thread_id+1, offset_value);
           display_assigned_utr_values();
      }
-     // need to sync up to ensure that no thread speeds off before nrank0 
+     // need to sync up to ensure that no thread speeds off before nrank0
      // gets a chance to set the global cpu_thread_mapper.utid_for_thread[] values
      BARRIER_WAIT(barrier1);
 
@@ -599,7 +599,7 @@ static inline void rebase_threads_to_cpu(mimo_t * mimo) {
 #endif // WS_PTHREADS
 
 #ifndef WS_PTHREADS
-static inline void rebase_threads_to_cpu(mimo_t * mimo) { 
+static inline void rebase_threads_to_cpu(mimo_t * mimo) {
      // need to set the local_jobq and local_job_freeq correctly
      // to avoid memory leaks!
      //

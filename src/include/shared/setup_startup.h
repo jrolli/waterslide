@@ -38,7 +38,7 @@ CPP_OPEN
 #endif // __cplusplus
 
 // Macros for noop serial functions
-#ifndef WS_PTHREADS
+#if !defined(WS_PTHREADS) || defined(__APPLE__)
 #define SETUP_STARTUP() 1
 #else // WS_PTHREADS
 #define SETUP_STARTUP() setup_startup()

@@ -34,17 +34,18 @@ CPP_OPEN
 
 #ifndef WS_PTHREADS
 #define BARRIER_INIT(barrier,nprocs) 1
-#define BARRIER_WAIT(barrier) 
+#define BARRIER_WAIT(barrier)
 
 #else // WS_PTHREADS
 #include <pthread.h>
+#include "shared/pthread_barrier.h"
 extern pthread_barrier_t *barrier1;
 #define BARRIER_TYPE_T pthread_barrier_t
 extern uint32_t work_size;
 
 // Macros for noop serial functions
-#define BARRIER_INIT(barrier,nprocs) barrier_init(barrier,nprocs) 
-#define BARRIER_WAIT(barrier) barrier_wait(barrier) 
+#define BARRIER_INIT(barrier,nprocs) barrier_init(barrier,nprocs)
+#define BARRIER_WAIT(barrier) barrier_wait(barrier)
 
 // Prototypes
 static inline int barrier_init(BARRIER_TYPE_T **, uint32_t);

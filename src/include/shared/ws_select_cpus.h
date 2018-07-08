@@ -304,6 +304,17 @@ static int getCoreIdles(uint32_t ncpu, uint64_t *idle, uint64_t *total, int seco
      free(times);
      return 1;
 }
+#elif defined(__APPLE__)
+// OSX does not appear to support CPU pinning so pass through bogus data
+// to keep the programming running.
+static int getCoreIdles(uint32_t ncpu, uint64_t *idle, uint64_t *total, int secondCall)
+{
+    for ( int c = 0 ; c < ncpu ; c ++) {
+        idle[c] = 1;
+        total[c] = 2;
+    }
+    return 1;
+}
 #else
 #error "Don't know how to get Idle cores on this platform."
 #endif

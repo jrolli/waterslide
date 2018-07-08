@@ -29,6 +29,7 @@ SOFTWARE.
 #include "wsqueue.h"
 #include "mimo.h"
 #include "shared/lock_init.h"
+#include "shared/pthread_barrier.h"
 
 #ifdef __cplusplus
 CPP_OPEN
@@ -56,7 +57,7 @@ static inline int create_shared_vars(void) {
      int i;
 
      // arglist contains info needed to start threads
-     arglist = (mimo_work_order_t **)calloc(work_size, 
+     arglist = (mimo_work_order_t **)calloc(work_size,
                                             sizeof(mimo_work_order_t *));
      if (!arglist) {
           error_print("failed create_shared_vars calloc of arglist");

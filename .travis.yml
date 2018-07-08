@@ -10,7 +10,9 @@ compiler:
   - gcc
   - clang
 
-install:
+before_install:
   - sudo apt update
   - sudo apt install bison flex libmagic-dev zlib1g-dev
+
+install:
   - HASMAGIC=1 WS_PARALLEL=1 make -d

@@ -11,3 +11,9 @@ compiler:
 matrix:
   allow_failures:
     - os: osx
+
+install:
+  - make
+
+script:
+  - make test

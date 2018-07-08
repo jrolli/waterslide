@@ -10,10 +10,6 @@ compiler:
   - gcc
   - clang
 
-#libmagic HASMAGIC librdkafka HASKAFKA libhiredis HASREDIS WS_PARALLEL=1
 install:
   - sudo apt install bison flex libhiredis-dev librdkafka-dev libmagic-dev zlib1g-dev
   - HASMAGIC=1 HASREDI=1 WS_PARALLEL=1 make -j
-
-script:
-  - make test

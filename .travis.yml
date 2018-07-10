@@ -18,10 +18,11 @@ install:
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt install bison flex libmagic-dev zlib1g-dev; fi
 
 script:
-  - HASMAGIC=1 WS_PARALLEL=1 WS_VERBOSEBUILD=1 make
+  - HASMAGIC=1 WS_VERBOSEBUILD=1 make
   - ./wsman -h
   - ./waterslide -h
   - ./wsalias
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then HASMAGIC=1 WS_PARALLEL=1 WS_VERBOSEBUILD=1 make; fi
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then ./waterslide-parallel -h; fi
 
 matrix:

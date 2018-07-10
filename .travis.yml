@@ -1,0 +1,29 @@
+language: c
+
+os:
+  - linux
+  - osx
+
+sudo: required
+distro: trusty
+
+compiler:
+  - gcc
+  - clang
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt update; fi
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt install bison flex libmagic-dev zlib1g-dev; fi
+
+script:
+  - HASMAGIC=1 WS_PARALLEL=1 WS_VERBOSEBUILD=1 make
+  - ./wsman -h
+  - ./waterslide -h
+  - ./wsalias
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then ./waterslide-parallel -h; fi
+
+matrix:
+  allow_failures:
+    - os: osx
